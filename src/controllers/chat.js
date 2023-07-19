@@ -1,56 +1,86 @@
-function sendMessage() {
+function sendMessage(type) {
   var input = document.getElementById("inputQuestion");
   var question = input.value;
 
-  // Create a new chat message element
   var chatMessage = document.createElement("div");
   chatMessage.className = "chat-message user-message";
   chatMessage.textContent = question;
 
-  // Append the message to the chat area
   var chatArea = document.getElementById("chatArea");
   chatArea.appendChild(chatMessage);
 
-  // Clear the input field
   input.value = "";
+  checkInput()
 
-  // Call the function to process the user question
-  processUserQuestion(question);
+  processUserQuestion(question, type);
 }
 
-function processUserQuestion(question) {
-  // Send the question to the backend or chatbot API
-  // Receive the response from the backend or chatbot API
+function processUserQuestion(question, type) {
+  const url = `http://localhost:3000/api/chat/${type}`;
+  const body = {
+    question: question
+  };
 
-  var response = "Exemplo de resposta do assistente";
+  fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(body)
+  })
+    .then(response => response.json())
+    .then(data => {
+      var chatMessage = document.createElement("div");
+      chatMessage.className = "chat-message assistant-message";
 
-  // Create a new chat message element for the response
-  var chatMessage = document.createElement("div");
-  chatMessage.className = "chat-message assistant-message";
-  chatMessage.textContent = response;
+      if(type === "image"){
+        //------------- Gerar Link -----------------
+        // const link = document.createElement('a');
+        // link.href = data.answer;
+        // link.textContent = "Visualizar imagem";
+        // link.target = "_blank";
 
-  // Append the message to the chat area
-  var chatArea = document.getElementById("chatArea");
-  chatArea.appendChild(chatMessage);
+        // chatMessage.appendChild(link);
+        //------------------------------------------
 
-  // Scroll to the bottom of the chat area
-  chatArea.scrollTop = chatArea.scrollHeight;
+        const msg = document.createElement('div');
+        msg.textContent = 'Claro, aqui está!';
+        chatMessage.appendChild(msg)
+
+        const img = document.createElement('img');
+        img.src = data.answer;
+        chatMessage.appendChild(img);
+      }
+      else
+        chatMessage.textContent = data.answer;
+
+      var chatArea = document.getElementById("chatArea");
+      chatArea.appendChild(chatMessage);
+
+      chatArea.scrollTop = chatArea.scrollHeight;
+    })
+    .catch(error => {
+      console.log(error)
+    });
 }
 
 function checkInput() {
   var inputElement = document.getElementById('inputQuestion');
   var sendButton = document.getElementById('sendButton');
+  var imageButton = document.getElementById('imageButton');
 
   if (inputElement.value.trim() !== '') {
       sendButton.disabled = false;
+      imageButton.disabled = false;
   } else {
       sendButton.disabled = true;
+      imageButton.disabled = true;
   }
 }
 
 function handleKeyDown(event) {
   if (event.keyCode === 13) {
       event.preventDefault();
-      sendMessage();
+      sendMessage("text");
   }
 }

@@ -10,6 +10,11 @@
 body {
   margin: 0;
   background-color: var(--blue-dark);
+  font-family: 'Roboto', sans-serif;
+}
+
+.primary {
+  color: var(--blue-light_2);
 }
 
 .container {
@@ -18,6 +23,21 @@ body {
   flex-direction: column;
   justify-content: flex-end;
   margin: 20px auto;
+}
+
+.container .header{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.container .header .title{
+  color: white;
+}
+
+.container .header img{
+  border-radius: 5px;
 }
 
 .chat-area {
@@ -33,6 +53,13 @@ body {
 
 .chat-message {
   margin-bottom: 10px;
+}
+
+.chat-message img {
+  height: 200px;
+  width: 200px;
+  border-radius: 5px;
+  margin: 5px;
 }
 
 .user-message {
