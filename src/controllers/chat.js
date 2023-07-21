@@ -1,3 +1,5 @@
+const apiBaseUrl = process.env.API_BASE_URL || "http://localhost:3000";
+
 function sendMessage(type) {
   var input = document.getElementById("inputQuestion");
   var question = input.value;
@@ -16,7 +18,7 @@ function sendMessage(type) {
 }
 
 function processUserQuestion(question, type) {
-  const url = `http://localhost:3000/api/chat/${type}`;
+  const url = `${apiBaseUrl}/api/chat/${type}`;
   const body = {
     question: question
   };
