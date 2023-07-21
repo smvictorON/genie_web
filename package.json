@@ -1,0 +1,20 @@
+{
+  "name": "ChatGPT_WEB",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/smvictorON/genie_web.git"
+  },
+  "keywords": [],
+  "author": "Victor <victorsm9@hotmail.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/smvictorON/genie_web/issues"
+  },
+  "homepage": "https://github.com/smvictorON/genie_web#readme"
+}
