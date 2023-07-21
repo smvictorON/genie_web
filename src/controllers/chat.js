@@ -1,4 +1,4 @@
-const apiBaseUrl = process.env.API_BASE_URL || "http://localhost:3000";
+const apiUrl = window.location.href.includes("localhost") ? "http://localhost:3000" : "https://genie-fhxk.onrender.com"
 
 function sendMessage(type) {
   var input = document.getElementById("inputQuestion");
@@ -18,7 +18,8 @@ function sendMessage(type) {
 }
 
 function processUserQuestion(question, type) {
-  const url = `${apiBaseUrl}/api/chat/${type}`;
+  console.log("🚀 ~ file: chat.js:23 ~ processUserQuestion ~ apiUrl:", apiUrl)
+  const url = `${apiUrl}/api/chat/${type}`;
   const body = {
     question: question
   };
