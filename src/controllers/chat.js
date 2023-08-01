@@ -1,89 +1,116 @@
-const apiUrl = window.location.href.includes("localhost") ? "http://localhost:3000" : "https://genie-fhxk.onrender.com"
+const apiUrl = window.location.href.includes("localhost") ? "http://localhost:3000" : "https://genie-fhxk.onrender.com";
 
-function sendMessage(type) {
-  var input = document.getElementById("inputQuestion");
-  var question = input.value;
+function addCopyButton(messageElement, isAssistantMessage = false) {
+  const copyButton = document.createElement("button");
+  copyButton.className = "copy-button";
+  copyButton.innerHTML = '<i class="fas fa-copy"></i>';
+  messageElement.appendChild(copyButton);
 
-  var chatMessage = document.createElement("div");
-  chatMessage.className = "chat-message user-message";
-  chatMessage.textContent = question;
-
-  var chatArea = document.getElementById("chatArea");
-  chatArea.appendChild(chatMessage);
-
-  input.value = "";
-  checkInput()
-
-  processUserQuestion(question, type);
+  copyButton.addEventListener("click", () => {
+    const textToCopy = messageElement.textContent;
+    copyToClipboard(textToCopy);
+  });
 }
 
-function processUserQuestion(question, type) {
-  console.log("🚀 ~ file: chat.js:23 ~ processUserQuestion ~ apiUrl:", apiUrl)
-  const url = `${apiUrl}/api/chat/${type}`;
-  const body = {
-    question: question
-  };
+function copyToClipboard(text) {
+  const tempInput = document.createElement("textarea");
+  tempInput.value = text;
+  document.body.appendChild(tempInput);
+  tempInput.select();
+  document.execCommand("copy");
+  document.body.removeChild(tempInput);
+}
 
-  fetch(url, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(body)
-  })
-    .then(response => response.json())
-    .then(data => {
-      var chatMessage = document.createElement("div");
-      chatMessage.className = "chat-message assistant-message";
+function createElementWithClass(className) {
+  const element = document.createElement("div");
+  element.className = className;
+  return element;
+}
 
-      if(type === "image"){
-        //------------- Gerar Link -----------------
-        // const link = document.createElement('a');
-        // link.href = data.answer;
-        // link.textContent = "Visualizar imagem";
-        // link.target = "_blank";
+function appendMessageToChatArea(className, text, isUserMessage = false) {
+  const chatArea = document.getElementById("chatArea");
+  const chatMessage = createElementWithClass(`chat-message ${className}`);
 
-        // chatMessage.appendChild(link);
-        //------------------------------------------
+  if (isUserMessage) {
+    const messageContent = document.createElement("div");
+    messageContent.textContent = text;
+    messageContent.className = "message-content";
+    chatMessage.appendChild(messageContent);
+    chatArea.appendChild(chatMessage);
+    addCopyButton(chatMessage);
+  } else {
+    chatMessage.textContent = text;
+    chatArea.appendChild(chatMessage);
+  }
 
-        const msg = document.createElement('div');
-        msg.textContent = 'Claro, aqui está!';
-        chatMessage.appendChild(msg)
+  chatArea.scrollTop = chatArea.scrollHeight;
+}
 
-        const img = document.createElement('img');
-        img.src = data.answer;
-        chatMessage.appendChild(img);
-      }
-      else
-        chatMessage.textContent = data.answer;
+async function processUserQuestion(question, type) {
+  try {
+    appendMessageToChatArea("user-message", question, true);
 
-      var chatArea = document.getElementById("chatArea");
-      chatArea.appendChild(chatMessage);
+    const url = `${apiUrl}/api/chat/${type}`;
+    const body = {
+      question: question,
+    };
 
-      chatArea.scrollTop = chatArea.scrollHeight;
-    })
-    .catch(error => {
-      console.log(error)
+    appendMessageToChatArea("assistant-message loading");
+
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
     });
+
+    const data = await response.json();
+
+    const answerMessage = createElementWithClass("chat-message assistant-message");
+    if (type === "image") {
+      const msg = createElementWithClass("assistant-message");
+      msg.textContent = "Claro, aqui está!";
+      const img = document.createElement("img");
+      img.src = data.answer;
+      answerMessage.appendChild(msg);
+      answerMessage.appendChild(img);
+    } else {
+      answerMessage.textContent = data.answer;
+    }
+
+    const chatArea = document.getElementById("chatArea");
+    const loadingMessage = chatArea.lastChild;
+    chatArea.replaceChild(answerMessage, loadingMessage);
+    chatArea.scrollTop = chatArea.scrollHeight;
+
+    addCopyButton(answerMessage, "assistant-message");
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+
+function sendMessage(type) {
+  const input = document.getElementById("inputQuestion");
+  const question = input.value.trim();
+  if (question) {
+    input.value = "";
+    checkInput();
+    processUserQuestion(question, type);
+  }
 }
 
 function checkInput() {
-  var inputElement = document.getElementById('inputQuestion');
-  var sendButton = document.getElementById('sendButton');
-  var imageButton = document.getElementById('imageButton');
-
-  if (inputElement.value.trim() !== '') {
-      sendButton.disabled = false;
-      imageButton.disabled = false;
-  } else {
-      sendButton.disabled = true;
-      imageButton.disabled = true;
-  }
+  const inputElement = document.getElementById("inputQuestion");
+  const sendButton = document.getElementById("sendButton");
+  const imageButton = document.getElementById("imageButton");
+  sendButton.disabled = imageButton.disabled = inputElement.value.trim() === "";
 }
 
 function handleKeyDown(event) {
   if (event.keyCode === 13) {
-      event.preventDefault();
-      sendMessage("text");
+    event.preventDefault();
+    sendMessage("text");
   }
 }
