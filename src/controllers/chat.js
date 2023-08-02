@@ -1,15 +1,28 @@
 const apiUrl = window.location.href.includes("localhost") ? "http://localhost:3000" : "https://genie-fhxk.onrender.com";
 
-function addCopyButton(messageElement, isAssistantMessage = false) {
+function addCopyButton(messageElement) {
   const copyButton = document.createElement("button");
   copyButton.className = "copy-button";
   copyButton.innerHTML = '<i class="fas fa-copy"></i>';
   messageElement.appendChild(copyButton);
 
   copyButton.addEventListener("click", () => {
-    const textToCopy = messageElement.textContent;
+    let textToCopy = messageElement.textContent.trim();
+    if (textToCopy === "") {
+      const imgElement = messageElement.querySelector("img");
+      if (imgElement)
+        textToCopy = imgElement.getAttribute("src")
+    }
     copyToClipboard(textToCopy);
+    replaceCopyIconWithCheck(copyButton)
   });
+}
+
+function replaceCopyIconWithCheck(copyButton) {
+  copyButton.innerHTML = '<i class="fas fa-check"></i>';
+  setTimeout(() => {
+    copyButton.innerHTML = '<i class="fas fa-copy"></i>';
+  }, 2000);
 }
 
 function copyToClipboard(text) {
@@ -67,21 +80,21 @@ async function processUserQuestion(question, type) {
 
     const data = await response.json();
 
+    const chatArea = document.getElementById("chatArea");
+    const loadingMessage = chatArea.lastChild;
+    chatArea.removeChild(loadingMessage);
+
     const answerMessage = createElementWithClass("chat-message assistant-message");
+
     if (type === "image") {
-      const msg = createElementWithClass("assistant-message");
-      msg.textContent = "Claro, aqui está!";
       const img = document.createElement("img");
       img.src = data.answer;
-      answerMessage.appendChild(msg);
       answerMessage.appendChild(img);
     } else {
       answerMessage.textContent = data.answer;
     }
 
-    const chatArea = document.getElementById("chatArea");
-    const loadingMessage = chatArea.lastChild;
-    chatArea.replaceChild(answerMessage, loadingMessage);
+    chatArea.appendChild(answerMessage);
     chatArea.scrollTop = chatArea.scrollHeight;
 
     addCopyButton(answerMessage, "assistant-message");
