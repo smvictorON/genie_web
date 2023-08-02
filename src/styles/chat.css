@@ -41,6 +41,13 @@ textarea {
   font-size: 1rem;
 }
 
+footer {
+  display: flex;
+  justify-content: center;
+  margin-top: 1rem;
+  font-size: 0.8rem;
+}
+
 .input-group button {
   width: 4.375rem;
 }
