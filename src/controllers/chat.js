@@ -1,4 +1,8 @@
-const apiUrl = window.location.href.includes("localhost") ? "http://localhost:3000" : "https://genie-fhxk.onrender.com";
+const apiUrl =
+  window.location.href.includes("localhost") ||
+  window.location.href.includes("127.0.0.1:5500")
+    ? "http://localhost:3000"
+    : "https://genie-fhxk.onrender.com";
 
 function addCopyButton(messageElement) {
   const copyButton = document.createElement("button");
